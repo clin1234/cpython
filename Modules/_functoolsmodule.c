@@ -539,7 +539,7 @@ partial_vectorcall(PyObject *self, PyObject *const *args,
         assert(j == pto_phcount);
         /* Add remaining args from new_args */
         if (nargs > pto_phcount) {
-            ptr_wise_atomic_memcpy(*stack, stack + pto_nargs, args + j, nargs - j);
+            ptr_wise_atomic_memcpy(*stack, stack + pto_nargs, (PyObject**)args + j, nargs - j);
         }
     }
     else {
