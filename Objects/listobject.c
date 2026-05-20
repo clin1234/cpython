@@ -1111,7 +1111,7 @@ list_inplace_repeat_lock_held(PyListObject *self, Py_ssize_t n)
     Py_ssize_t copied = input_size;
     while (copied < output_size) {
         Py_ssize_t items_to_copy = Py_MIN(copied, output_size - copied);
-        ptr_wise_atomic_memmove(self, items + copied, items, items_to_copy);
+        ptr_wise_atomic_list_memmove(self, items + copied, items, items_to_copy);
         copied += items_to_copy;
     }
 #endif
