@@ -8,7 +8,6 @@ extern "C" {
 #  error "this header requires Py_BUILD_CORE define"
 #endif
 
-#include "pycore_critical_section.h" // _Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED
 #include "pycore_emscripten_trampoline.h" // _PyCFunction_TrampolineCall()
 #include "pycore_gc.h"            // _PyObject_GC_TRACK()
 #include "pycore_pyatomic_ft_wrappers.h" // FT_ATOMIC_LOAD_PTR_ACQUIRE()
@@ -1035,64 +1034,6 @@ static inline Py_ALWAYS_INLINE void _Py_INCREF_MORTAL(PyObject *op)
 #else
 # define _Py_INCREF_MORTAL(op) Py_INCREF(op)
 #endif
-
-// Pointer-by-pointer memmove for PyObject** arrays that is safe
-// for shared PyObjects in Py_GIL_DISABLED builds.
-static inline void
-ptr_wise_atomic_memmove(PyObject *a, PyObject **dest, PyObject **src, Py_ssize_t n)
-{
-#ifndef Py_GIL_DISABLED
-    memmove(dest, src, n * sizeof(PyObject *));
-#else
-    if (PySet_Check(a) || PyList_Check(a) || PyDict_Check(a))
-        _Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED(a);
-    if (_Py_IsOwnedByCurrentThread(a) && !_PyObject_GC_IS_SHARED(a)) {
-        // No other threads can read this list concurrently
-        memmove(dest, src, n * sizeof(PyObject *));
-        return;
-    }
-    if (dest < src) {
-        for (Py_ssize_t i = 0; i != n; i++) {
-            _Py_atomic_store_ptr_release(&dest[i], src[i]);
-        }
-    }
-    else {
-        // copy backwards to avoid overwriting src before it's read
-        for (Py_ssize_t i = n; i != 0; i--) {
-            _Py_atomic_store_ptr_release(&dest[i - 1], src[i - 1]);
-        }
-    }
-#endif
-}
-
-// Pointer-by-pointer memcpy for PyObject** arrays that is safe
-// for shared PyObjects in Py_GIL_DISABLED builds.
-static inline void
-ptr_wise_atomic_memcpy(PyObject *a, PyObject **dest, PyObject **src, Py_ssize_t n)
-{
-#ifndef Py_GIL_DISABLED
-    memcpy(dest, src, n * sizeof(PyObject *));
-#else
-    if (PySet_Check(a) || PyList_Check(a) || PyDict_Check(a))
-        _Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED(a);
-    if (_Py_IsOwnedByCurrentThread(a) && !_PyObject_GC_IS_SHARED(a)) {
-        // No other threads can read this list concurrently
-        memcpy(dest, src, n * sizeof(PyObject *));
-        return;
-    }
-    if (dest < src) {
-        for (Py_ssize_t i = 0; i != n; i++) {
-            _Py_atomic_store_ptr_release(&dest[i], src[i]);
-        }
-    }
-    else {
-        // copy backwards to avoid overwriting src before it's read
-        for (Py_ssize_t i = n; i != 0; i--) {
-            _Py_atomic_store_ptr_release(&dest[i - 1], src[i - 1]);
-        }
-    }
-#endif
-}
 
 /* Utility for the tp_traverse slot of mutable heap types that have no other
  * references. */
