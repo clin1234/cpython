@@ -444,7 +444,7 @@ partial_vectorcall(PyObject *self, PyObject *const *args,
         tot_kwnames = kwnames;
         if (nkwds) {
             /* if !pto_nkwds & nkwds, then simply append kw */
-            ptr_wise_atomic_memcpy(*stack, (PyObject**)stack + tot_nargs, (PyObject**)args + nargs, nkwds);
+            memcpy(stack + tot_nargs, args + nargs, nkwds * sizeof(PyObject*));
         }
     }
     else {
@@ -539,12 +539,12 @@ partial_vectorcall(PyObject *self, PyObject *const *args,
         assert(j == pto_phcount);
         /* Add remaining args from new_args */
         if (nargs > pto_phcount) {
-            ptr_wise_atomic_memcpy(*stack, stack + pto_nargs, (PyObject**)args + j, nargs - j);
+            memcpy(stack + pto_nargs, args + j, (nargs - j) * sizeof(PyObject*));
         }
     }
     else {
-        ptr_wise_atomic_memcpy(*stack, (PyObject**)stack, (PyObject**)pto_args, pto_nargs);
-        ptr_wise_atomic_memcpy(*stack, (PyObject**)stack + pto_nargs, (PyObject**)args, nargs);
+        memcpy(stack, pto_args, pto_nargs * sizeof(PyObject*));
+        memcpy(stack + pto_nargs, args, nargs * sizeof(PyObject*));
     }
 
     PyObject *ret = _PyObject_VectorcallTstate(tstate, pto->fn, stack,
