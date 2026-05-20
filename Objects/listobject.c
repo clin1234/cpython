@@ -3793,7 +3793,7 @@ list_ass_subscript_lock_held(PyObject *_self, PyObject *item, PyObject *value)
                     lim = Py_SIZE(self) - cur - 1;
                 }
 
-                ptr_wise_atomic_memmove(self, self->ob_item + cur - i,
+                ptr_wise_atomic_list_memmove(self, self->ob_item + cur - i,
                     self->ob_item + cur + 1, lim);
             }
             cur = start + (size_t)slicelength * step;
