@@ -698,7 +698,7 @@ def _default_mime_types():
         '.mov'    : 'video/quicktime',
         '.qt'     : 'video/quicktime',
         '.pyv'    : 'video/vnd.ms-playready.media.pyv',
-        '.blk'    : 'video/vnd.radgamettools.bink',
+        '.bik'    : 'video/vnd.radgamettools.bink',
         '.bk2'    : 'video/vnd.radgamettools.bink',
         '.sswf'   : 'video/vnd.sealed.swf',
         '.ssw'    : 'video/vnd.sealed.swf',
