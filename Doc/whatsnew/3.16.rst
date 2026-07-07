@@ -599,7 +599,7 @@ mimetypes
   :meth:`mimetypes.MimeTypes.add_type`.
   Undotted extensions now raise a :exc:`ValueError`.
 * Add more MIME types.
-  (Contributed by Charlie Lin in :gh:`146342`.)
+  (Contributed by Charlie Lin in :gh:`146341`.)
 
 shutil
 ------
